@@ -3,11 +3,36 @@
 Every login in Flexon Sports Hub is a Supabase Auth session. Roles live in `profiles.role`
 (`player`, `team_owner`, `referee`, `organiser`, `admin`).
 
-## Logins that exist right now (live database, checked 17 Nov 2026)
+## Email + password logins (live database, created 17 Nov 2026)
+
+Created with `node scripts/seed-logins.mjs`. Passwords are random and are only in the git-ignored
+`credentials.local.txt` on the machine that ran it (re-running resets them). They use the reserved
+`flexon-sports.test` domain, which cannot receive mail, so **password login works and email codes do not**
+for these accounts. For a real organiser, run `node scripts/admin.mjs organiser <real email>` and use the code login,
+or change the email in Supabase → Authentication → Users and set a password there.
+
+| Role | Email | Team / profile |
+| --- | --- | --- |
+| organiser | organiser@flexon-sports.test | |
+| admin | admin@flexon-sports.test | |
+| team_owner | owner.smashers@flexon-sports.test | Salt Lake Smashers |
+| team_owner | owner.dinks@flexon-sports.test | New Town Dinks |
+| team_owner | owner.blasters@flexon-sports.test | Ballygunge Blasters |
+| team_owner | owner.heat@flexon-sports.test | Howrah Heat |
+| player | player.rohan@flexon-sports.test | Rohan Das |
+| player | player.ishita@flexon-sports.test | Ishita Roy |
+
+Where to use the password: organiser/admin at `/admin` (Organiser tab), team owners at `/owner`
+(Email and password), players at `/` → Log in → Password. All go through Supabase `signInWithPassword`.
+Each team owner has a four-player squad (two men, two women) in the Flexon Team League.
+
+Delete or disable these before a real launch (Supabase → Authentication → Users).
+
+## Other logins that exist (code-based)
 
 | Role | Login | Where | Status |
 | --- | --- | --- | --- |
-| Organiser / admin | work email + 6-digit code | `/admin` | **None exist yet. Create one (step 2 below).** |
+| Organiser / admin | work email + 6-digit code | `/admin` | Only the `.test` accounts above until you add a real one (step 2). |
 | Referee | court number + 4-digit PIN, no account | `/admin` → Referee | Every court's PIN is **`1234`** (seed default). Change before a real event. |
 | Team owner | registered mobile + WhatsApp code | `/owner` | None. Created when an organiser registers a team with the owner's mobile. |
 | Player | mobile (WhatsApp) or email + code | `/` → Log in | None. The 16 sample players are display profiles only and have no login. |

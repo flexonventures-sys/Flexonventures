@@ -99,6 +99,9 @@ function Login({ onIn, note }: { onIn: () => void; note: string }) {
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [sent, setSent] = useState(false);
+  const [mode, setMode] = useState<"code" | "pw">("code");
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
   const [err, setErr] = useState(note);
   const [busy, setBusy] = useState(false);
   const run = async (f: () => Promise<unknown>) => { setBusy(true); setErr(""); try { await f(); } catch (e) { setErr((e as Error).message); } setBusy(false); };
@@ -106,7 +109,20 @@ function Login({ onIn, note }: { onIn: () => void; note: string }) {
     <div className="p-4">
       <h1 className="text-2xl font-bold">Team owner log in</h1>
       <p className="muted mt-1">Use the mobile the organiser registered. We send a 6-digit code on WhatsApp.</p>
-      {!sent ? (
+      <div className="mt-4 flex gap-2" role="group" aria-label="Login method">
+        {([["code", "Mobile code"], ["pw", "Email and password"]] as const).map(([k, l]) => (
+          <button key={k} type="button" aria-pressed={mode === k} onClick={() => setMode(k)} className={`min-h-11 flex-1 border px-3 text-sm font-semibold ${mode === k ? "border-ink bg-ink text-white dark:border-ball dark:bg-ball dark:text-ink" : "border-line dark:border-line-dark"}`}>{l}</button>
+        ))}
+      </div>
+      {mode === "pw" ? (
+        <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); run(async () => { await api("auth/password", { body: { email, password: pw, role: "team_owner" } }); onIn(); }); }}>
+          <label className="block text-sm font-semibold" htmlFor="em">Email</label>
+          <input id="em" type="email" className="inp" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
+          <label className="block text-sm font-semibold" htmlFor="pw">Password</label>
+          <input id="pw" type="password" className="inp" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="current-password" />
+          <button className="btn w-full" disabled={busy || !email || !pw}>Log in</button>
+        </form>
+      ) : !sent ? (
         <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); run(async () => { await api("auth/otp", { body: { phone, role: "team_owner", channel: "whatsapp" } }); setSent(true); }); }}>
           <label className="block text-sm font-semibold" htmlFor="ph">Mobile number</label>
           <div className="flex"><span className="inp w-auto border-r-0">+91</span><input id="ph" className="inp" inputMode="numeric" maxLength={10} value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))} placeholder="98300 00000" autoComplete="tel-national" /></div>

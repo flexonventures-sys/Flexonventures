@@ -166,7 +166,7 @@ function gate(){document.body.classList.add("locked");
  <h1 class="title" style="font-size:52px;line-height:.9">Organiser<br>and referee</h1><p class="sub">Log in to run courts, scores and entries.</p>
  <div class="seg" role="group"><button type="button" aria-pressed="${gateMode==="org"}" data-act="gmode" data-v="org">Organiser</button><button type="button" aria-pressed="${gateMode==="ref"}" data-act="gmode" data-v="ref">Referee</button></div>
  ${gateMode==="org"?(gateSent?`<p class="muted" style="margin:0">Enter the 6-digit code sent to your email.</p>${otpBoxes(6)}<button class="btn full" data-act="gin">Log in</button><p style="font-size:14px;margin:12px 0"><button class="lnk" data-act="fill-otp">Paste code from message</button></p>`
-   :`<div class="field"><label for="g-e">Work email</label><input id="g-e" class="inp" type="email" value="ops@flexonventures.in"></div><button class="btn full" data-act="gsend">Send login code</button>`)
+   :`<div class="field"><label for="g-e">Work email</label><input id="g-e" class="inp" type="email" value="ops@flexonventures.in" autocomplete="username"></div><div class="field"><label for="g-pw">Password <span class="muted">(or use a login code)</span></label><input id="g-pw" class="inp" type="password" autocomplete="current-password"></div><button class="btn full" data-act="gpw">Log in with password</button><p style="margin:12px 0 0"><button class="lnk" data-act="gsend">Send login code instead</button></p>`)
  :`<div class="field"><span class="lab">Your court</span><div class="chips">${[1,2,3,4].map(c=>`<button type="button" class="chip" aria-pressed="${c===refCourt}" data-act="rcourt" data-v="${c}">Court ${c}</button>`).join("")}</div></div>
    <div class="field"><span class="lab">Court PIN from the organiser</span>${otpBoxes(4).replace("repeat(4,1fr)","repeat(4,64px)")}</div><button class="btn full" data-act="rin">Start scoring</button>
    <p class="muted" style="font-size:13px;margin:12px 0 0">Referees only see the scoring screen for their court.</p>`}
@@ -248,6 +248,7 @@ Object.assign(Acts,{
  approve:a=>{const i=reviews.findIndex(r=>r.id==a.dataset.id);const r=reviews.splice(i,1)[0];confirmed.unshift([r.t,r.m,r.amt]);toast("Approved. Confirmation sent on WhatsApp.");render()},
  gmode:a=>{gateMode=a.dataset.v;gateSent=false;render()},
  gsend:()=>{gateSent=true;render()},
+ gpw:()=>{adminIn=true;$(".appbar .who").textContent="S. Mukherjee";location.hash="#/today";render()},
  gin:()=>{if(!otpFull()){toast("Enter all 6 digits");return}adminIn=true;gateSent=false;$(".appbar .who").textContent="S. Mukherjee";location.hash="#/today";render()},
  rcourt:a=>{refCourt=+a.dataset.v;$$("[data-act=rcourt]").forEach(b=>b.setAttribute("aria-pressed",b===a))},
  rin:()=>{if(!otpFull()){toast("Enter the 4-digit court PIN");return}const m=M.find(x=>x.court===refCourt&&x.status==="live")||M.find(x=>x.court===refCourt&&x.status==="upcoming");if(!m){toast("Nothing to score on this court");return}if(m.status==="upcoming"){toast(`Court ${refCourt} opens for scoring when the organiser starts the ${m.time} match`);return}refMode=true;location.hash=`#/score/${m.id}`},

@@ -44,6 +44,7 @@
       await api("auth/otp", { phone, email, channel: pressed("ch") === "sms" ? "sms" : "whatsapp", role: "player" });
       reg.phone = phone; reg.email = email;
     });
+    wrap("pwlogin", async () => { await api("auth/password", { email: ($("#l-e") || {}).value, password: ($("#l-pw") || {}).value, role: "player" }); });
     wrap("login", async () => { await api("auth/verify", { phone: reg.phone, email: reg.email, code: otp() }); });
     wrap("next", async () => {
       const step = $(".step-l") ? +($(".step-l").textContent.match(/Step (\d)/) || [])[1] : 0;
@@ -88,6 +89,7 @@
     const tournamentOf = (m) => (m && m.t) || (X.T.find((t) => t.status === "live") || X.T[0]).id;
     wrap("gsend", async () => { email = ($("#g-e") || $("input[type=email]") || {}).value; await api("auth/otp", { email, role: "organiser" }); });
     wrap("gin", async () => { await api("auth/verify", { email, code: otp(), role: "organiser" }); });
+    wrap("gpw", async () => { await api("auth/password", { email: ($("#g-e") || {}).value, password: ($("#g-pw") || {}).value, role: "organiser" }); });
     wrap("rin", async () => {
       const court = +(($$("[data-act=rcourt]").find((b) => b.getAttribute("aria-pressed") === "true") || {}).dataset || {}).v || 1;
       await api("referee/login", { tournament: tournamentOf(), court, pin: otp() });
