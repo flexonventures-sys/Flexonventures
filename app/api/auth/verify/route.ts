@@ -33,9 +33,12 @@ export const POST = route(async (req: Request) => {
     // Owners are matched to teams the organiser registered with this mobile.
     const { data: teams } = phone ? await db().from("teams").select("id").eq("owner_phone", phone) : { data: [] };
     role = teams?.length ? "team_owner" : "player";
-    await db().from("profiles").insert({ id: uid, full_name: i.name ?? "", phone: phone || null, email: email || null, role });
+    await db().from("profiles").insert({ id: uid, full_name: i.name ?? "", phone: phone || null, email: email || null, role, phone_verified_at: phone ? new Date().toISOString() : null });
     if (teams?.length) await db().from("teams").update({ owner_profile: uid, owner_verified: true }).in("id", teams.map((t) => t.id));
-  } else if (i.name && !existing.full_name) {
+  } else if (phone) {
+    await db().from("profiles").update({ phone, phone_verified_at: new Date().toISOString() }).eq("id", uid);
+  }
+  if (existing && i.name && !existing.full_name) {
     await db().from("profiles").update({ full_name: i.name }).eq("id", uid);
   }
   if (i.role === "organiser" && role !== "organiser" && role !== "admin") {

@@ -1,5 +1,5 @@
 // POST /api/auth/otp  { phone? | email?, channel?: "whatsapp"|"sms", role?: "player"|"team_owner"|"organiser" }
-// Sends a 6-digit login code through Supabase Auth (email, SMS or WhatsApp provider).
+// Sends a 6-digit login code through Supabase Auth: email, or mobile delivered on WhatsApp.
 //   Players: mobile (WhatsApp/SMS) or email. Team owners: registered mobile, WhatsApp.
 //   Organisers: work email, and only if already registered as organiser.
 import { z } from "zod";
@@ -35,7 +35,8 @@ export const POST = route(async (req: Request) => {
 
   const sb = await userClient();
   const { error } = phone
-    ? await sb.auth.signInWithOtp({ phone, options: { channel: i.role === "team_owner" ? "whatsapp" : i.channel, shouldCreateUser: true } })
+    // Supabase issues the code; its Send SMS hook (/api/hooks/send-sms) delivers it on WhatsApp.
+    ? await sb.auth.signInWithOtp({ phone, options: { channel: "sms", shouldCreateUser: true } })
     : await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: i.role !== "organiser" } });
   if (error) throw new HttpError(error.status === 429 ? 429 : 400, error.message);
   return ok({ sent: true });

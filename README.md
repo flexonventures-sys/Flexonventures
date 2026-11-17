@@ -10,7 +10,7 @@ Pickleball tournament platform for Flexon Ventures: one mobile-first web app, th
 
 ## Stack
 
-Next.js 15 (App Router, TypeScript, API routes) · Tailwind · Supabase Postgres with row-level security and Realtime · Razorpay · Web Push · Vercel (Mumbai region).
+Next.js 15 (App Router, TypeScript, API routes) · Tailwind · Supabase Auth (all logins) · Supabase Postgres with row-level security and Realtime · WhatsApp Cloud API for codes · Razorpay · Web Push · Vercel (Mumbai region).
 
 The public and organiser views are the signed-off prototype (`public/hub`, `public/organiser`), served by Next.js. `/api/bootstrap` feeds them live data from Supabase and `public/shared/flx.js` connects their actions to the API (entries, payments, follows, scoring, approvals, refunds) and to Supabase Realtime. When the database is not configured they fall back to the prototype's demo data, so the site never shows a blank page.
 
@@ -42,7 +42,9 @@ Functions: `lock_match`, `reopen_match`, `check_court_pin`, `set_court_pin`, `su
 | --- | --- | --- | --- |
 | GET | `/api/bootstrap` | anyone | live data for the prototype views (staff also get reviews/refunds) |
 | POST | `/api/auth/otp`, `/api/auth/verify`, `/api/auth/logout` | anyone | code login for players, owners, organisers |
-| POST | `/api/referee/login` | referee | court PIN → court-scoped session |
+| POST | `/api/referee/login` | referee | court PIN → court-scoped Supabase session |
+| POST/PUT | `/api/auth/phone` | signed-in user | account setup: verify mobile (WhatsApp code from Supabase) |
+| POST | `/api/hooks/send-sms` | Supabase Auth | Send SMS hook: delivers Supabase-issued codes on WhatsApp |
 | GET | `/api/matches/:code` | anyone | replayed score, call, rally feed, stream |
 | POST | `/api/matches/:code/events` | referee/organiser | rally, undo, timeout (idempotent `clientId` for offline sync) |
 | POST | `/api/matches/:code/action` | organiser (lock: referee too) | start, move (alerts + window), walkover, lock, reopen |

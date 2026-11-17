@@ -1,5 +1,3 @@
-import { cookies } from "next/headers";
-import { createHmac, timingSafeEqual } from "node:crypto";
 import { db, userClient, HttpError } from "./supabase";
 
 export type Role = "player" | "team_owner" | "referee" | "organiser" | "admin";
@@ -29,31 +27,14 @@ export async function requireStaff(): Promise<Caller> {
   return c;
 }
 
-// ---- Referee court sessions: no accounts; a court PIN unlocks one court of one tournament.
-const secret = () => {
-  const s = process.env.SESSION_SECRET;
-  if (!s || s.length < 32) throw new HttpError(503, "SESSION_SECRET is not configured");
-  return s;
-};
-const sign = (v: string) => createHmac("sha256", secret()).update(v).digest("base64url");
-export const REF_COOKIE = "flx_ref";
-
-export type RefSession = { tournamentId: string; court: number; exp: number };
-
-export function refToken(s: RefSession) {
-  const v = Buffer.from(JSON.stringify(s)).toString("base64url");
-  return `${v}.${sign(v)}`;
-}
+// ---- Referee court sessions are Supabase sessions too: the court user's app_metadata
+// ({ role: "referee", tournament_id, court }) is set server side and cannot be changed by the client.
+export type RefSession = { tournamentId: string; court: number };
 
 export async function refereeSession(): Promise<RefSession | null> {
-  const raw = (await cookies()).get(REF_COOKIE)?.value;
-  if (!raw) return null;
-  const [v, sig] = raw.split(".");
-  if (!v || !sig) return null;
-  const a = Buffer.from(sig), b = Buffer.from(sign(v));
-  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
-  const s = JSON.parse(Buffer.from(v, "base64url").toString()) as RefSession;
-  return s.exp > Date.now() ? s : null;
+  const { data } = await (await userClient()).auth.getUser();
+  const m = data.user?.app_metadata;
+  return m?.role === "referee" && m.tournament_id ? { tournamentId: m.tournament_id, court: Number(m.court) } : null;
 }
 
 /**

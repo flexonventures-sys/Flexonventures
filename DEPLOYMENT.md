@@ -11,10 +11,19 @@ All accounts in Flexon's name (proposal section 14). `main` is production, `dev`
    supabase db push            # applies supabase/migrations/*
    psql "$DATABASE_URL" -f supabase/seed.sql   # optional starting data from the prototype
    ```
-3. Auth → Providers:
-   - Email: enable, "Confirm email" on, use the 6-digit OTP template (`{{ .Token }}`).
-   - Phone: enable with Twilio (supports SMS and WhatsApp) or MessageBird. SMS in India needs DLT registration; WhatsApp needs Meta verification.
+3. Auth (every login in the app is a Supabase Auth session):
+   - Email: enable, use the 6-digit OTP template (`{{ .Token }}`). Organisers and email players log in this way.
+   - Phone: enable the Phone provider. Codes are generated and verified by Supabase and delivered on
+     WhatsApp by our hook: Authentication → Hooks → **Send SMS hook** → HTTPS →
+     `https://<domain>/api/hooks/send-sms`. Generate the secret there and set it as `SEND_SMS_HOOK_SECRET`.
+   - WhatsApp (Meta): create a WhatsApp Business app, add the sending number, and create an
+     **Authentication** template with a **Copy code** button (e.g. `flexon_login_code`). Set
+     `WHATSAPP_TOKEN` (permanent system-user token), `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_OTP_TEMPLATE`.
+   - Referees: no setup. A correct court PIN signs the referee into a Supabase session for a per-court
+     service user whose `app_metadata` limits it to that court.
    - Auth → Rate limits: keep OTP limits on (backs up the API's own limiter).
+   - Account setup: users who signed up by email verify their mobile with `POST /api/auth/phone`
+     then `PUT /api/auth/phone` (Supabase `phone_change` code, delivered on WhatsApp).
 4. Create the first organiser: sign up once with the work email at `/admin`, then
    ```sql
    update profiles set role = 'organiser', org_id = '00000000-0000-0000-0000-000000000001' where email = 'ops@flexonventures.in';
@@ -33,7 +42,8 @@ All accounts in Flexon's name (proposal section 14). `main` is production, `dev`
 
 1. Import `flexonventures-sys/flexonventures`. Framework: Next.js. Production branch: `main`.
 2. Environment variables (Production and Preview separately; see `.env.example`):
-   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SESSION_SECRET`,
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
+   `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_OTP_TEMPLATE`, `SEND_SMS_HOOK_SECRET`,
    `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`,
    `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `NEXT_PUBLIC_SITE_URL`.
 3. Pushes to `dev` create Preview deployments; merging `dev` into `main` deploys production.
