@@ -2,9 +2,12 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-const service = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+// Accepts both our names and the ones the Vercel Supabase integration creates.
+const env = process.env;
+export const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL || env.SUPABASE_URL || "";
+export const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+const url = supabaseUrl, anon = supabaseAnonKey;
+const service = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY || "";
 
 export const dbConfigured = () => Boolean(url && anon && service);
 

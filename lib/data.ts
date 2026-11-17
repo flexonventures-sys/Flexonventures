@@ -1,6 +1,6 @@
 // Maps database rows to the shapes the approved prototype renders (P, T, M ...),
 // so the UI stays exactly as signed off while every value comes from Supabase.
-import { db, HttpError } from "./supabase";
+import { db, HttpError, supabaseAnonKey, supabaseUrl } from "./supabase";
 import type { Format, Rally } from "./scoring";
 
 const IST = "Asia/Kolkata";
@@ -93,7 +93,7 @@ export async function bootstrap(opts: { staff: boolean }) {
   const out: Record<string, unknown> = {
     live: true, P, T, M,
     courts: courts.data,
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL, supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    supabaseUrl, supabaseAnonKey,
     vapidKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || undefined,
   };
 
