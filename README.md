@@ -73,4 +73,4 @@ npm run dev                  # http://localhost:3000, /admin, /owner
 npm test                     # scoring + draw unit tests
 ```
 
-Deployment: see [DEPLOYMENT.md](DEPLOYMENT.md). Branches: `main` → Vercel production, `dev` → Vercel preview.
+Admin logins and first-time setup: [docs/ADMIN_SETUP.md](docs/ADMIN_SETUP.md). Deployment: see [DEPLOYMENT.md](DEPLOYMENT.md). Branches: `main` → Vercel production, `dev` → Vercel preview.
