@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light dark; }
+body { @apply bg-white text-ink antialiased dark:bg-[#0c0e0f] dark:text-[#f1f2ed]; font: 15px/1.5 system-ui, sans-serif; }
+
+@layer components {
+  .card { @apply border border-line bg-surface p-4 dark:border-line-dark dark:bg-surface-dark; }
+  .btn { @apply inline-flex min-h-11 items-center justify-center gap-2 bg-ink px-5 font-semibold text-white disabled:opacity-50 dark:bg-ball dark:text-ink; }
+  .btn-sec { @apply inline-flex min-h-11 items-center justify-center gap-2 border border-line px-5 font-semibold dark:border-line-dark; }
+  .inp { @apply min-h-11 w-full border border-line bg-white px-3 dark:border-line-dark dark:bg-[#111]; }
+  .muted { @apply text-ink-2 dark:text-[#a4a7a0]; }
+  .tag { @apply inline-block px-2 py-0.5 text-xs font-semibold uppercase tracking-wide; }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Flexon Sports Hub",
+  "short_name": "Flexon",
+  "description": "Live pickleball scores, tournaments and entries.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Organiser", "url": "/admin" },
+    { "name": "Team owner", "url": "/owner" }
+  ]
+}
