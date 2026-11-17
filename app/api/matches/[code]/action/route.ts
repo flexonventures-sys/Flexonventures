@@ -12,6 +12,7 @@ import { replay, validGames } from "@/lib/scoring";
 import { db } from "@/lib/supabase";
 import { audit, requireScorer, requireStaff } from "@/lib/session";
 import { alertFollowers } from "@/lib/notify";
+import { onMatchLocked } from "@/lib/formats/engine";
 
 const Game = z.tuple([z.number().int().min(0), z.number().int().min(0)]);
 const In = z.discriminatedUnion("action", [
@@ -47,6 +48,7 @@ export const POST = route(async (req: Request, ctx: { params: Promise<{ code: st
     await db().from("rally_events").insert({ match_id: m.id, seq: 100000 + Date.now() % 100000, kind: "lock", by_label: who.label });
     await audit(who.actor, "match.lock", "match", m.code, { games, by: who.label });
     await maybeChampion(m);
+    await onMatchLocked(m.id);
     await alertFollowers({ matchId: m.id, categoryId: m.category_id, tournamentId: m.tournament_id }, { kind: "result", title: `Result: ${m.stage}`, body: games.map((g) => g.join("–")).join(", "), href });
     return ok({ locked: true, games });
   }
@@ -79,6 +81,7 @@ export const POST = route(async (req: Request, ctx: { params: Promise<{ code: st
     const { error } = await db().rpc("lock_match", { p_match: m.id, p_games: games });
     if (error) throw error;
     await db().from("matches").update({ status: "walkover" }).eq("id", m.id);
+    await onMatchLocked(m.id);
     await audit(staff.profileId, "match.walkover", "match", m.code, { winner: i.winner });
     await alertFollowers({ matchId: m.id, tournamentId: m.tournament_id }, { kind: "result", title: `Walkover: ${m.stage}`, href });
     return ok({ status: "walkover" });

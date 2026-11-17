@@ -216,7 +216,7 @@ App.views.entries=(q)=>{const s=q.s||"review";const pending=reviews.length,ref=r
   <dl class="facts" style="grid-template-columns:1fr 1fr 1fr"><div><dt>Collected</dt><dd>₹1.34L</dd></div><div><dt>Razorpay fees</dt><dd>₹3,172</dd></div><div><dt>Refunded</dt><dd>${inr(refunds.filter(r=>r.done).length*1400)}</dd></div></dl>
   <h2 class="h" style="margin-top:6px">Places taken</h2><div class="bars">${[["Men's doubles 3.5",18,20],["Women's doubles 3.5",14,20],["Mixed doubles open",11,20],["Mixed doubles 3.0",7,20],["Team League",5,8]].map(([l,n,c])=>`<div><span>${l}</span><i style="width:${Math.round(n/c*100)}%"></i><b>${n}/${c}</b></div>`).join("")}</div><div style="height:14px"></div>${seg([["review",`To review${pending?` (${pending})`:""}`],["ok","Confirmed"],["refund",`Refunds${ref?` (${ref})`:""}`]],s,"#/entries?s=")}<div class="list">${list}</div></div>`};
 
-App.views.setup=()=>`<div class="page"><h1 class="title">Setup</h1><p class="sub">Set once, change any time.</p><div class="list">
+App.views.setup=()=>`<div class="page"><h1 class="title">Setup</h1><p class="sub">Set once, change any time.</p><div class="list"><a class="row" href="/console"><span class="ic">${I.gear}</span><div><div class="t">Flexon Console</div><div class="m">Every format, draws, live control, users and logins</div></div><div class="r">${I.chev}</div></a>
   ${row({href:"#/courts",left:`<span class="ic">${I.court}</span>`,t:"Courts and referees",m:"4 courts, referee PINs"})}
   ${row({href:"#/streams",left:`<span class="ic">${I.video}</span>`,t:"Live streams",m:"YouTube link for each court"})}
   ${row({href:"#/logins",left:`<span class="ic">${I.key}</span>`,t:"Login codes",m:"Email, WhatsApp or SMS"})}

@@ -28,3 +28,21 @@ test("validGames enforces win by 2 and enough games", () => {
   assert.ok(!validGames(SO, [[11, 10], [11, 9]]));
   assert.ok(!validGames(SO, [[11, 7]]));
 });
+
+test("MLP DreamBreaker: rally to 21 with freeze at 20 needs a serve to finish", () => {
+  const DB: Format = { type: "rally", to: 21, bo: 1, dbl: false, freeze: 20 };
+  // A reaches 20, B reaches 20, then B wins a rally as receiver: side out only, no point
+  let s = replay(DB, rallies("0".repeat(20) + "1".repeat(20) + "0" + "1"));
+  assert.deepEqual(s.sc, [21, 20].map((_, i) => s.sc[i])); // shape check
+  s = replay(DB, rallies("0".repeat(20) + "1".repeat(20)));
+  assert.deepEqual(s.sc, [20, 20]); assert.equal(s.srv, 1);
+  s = replay(DB, rallies("0".repeat(20) + "1".repeat(20) + "0")); // A receiving at 20: frozen, side out to A
+  assert.deepEqual(s.sc, [20, 20]); assert.equal(s.srv, 0);
+});
+
+test("cap: win by 1 at cap", () => {
+  const C: Format = { type: "rally", to: 11, bo: 1, dbl: false, cap: 15 };
+  assert.ok(validGames(C, [[15, 14]]));
+  assert.ok(!validGames(C, [[16, 14]]));
+  assert.ok(validGames({ type: "rally", to: 11, bo: 1, dbl: false, winBy: 1 }, [[11, 10]]));
+});

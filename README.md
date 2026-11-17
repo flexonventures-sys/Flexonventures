@@ -6,7 +6,10 @@ Pickleball tournament platform for Flexon Ventures: one mobile-first web app, th
 | --- | --- | --- |
 | `/` | Public: Home, Matches, Events, Players, Log in | None to browse. Players: mobile (WhatsApp/SMS) or email code |
 | `/admin` | Organiser (Today, Tournaments, Entries, Setup) and Referee scoring | Organisers: work email code. Referees: court + 4-digit PIN |
-| `/owner` | Team owner: Next tie, Lineup, Squad, Fixtures | Registered mobile, WhatsApp code |
+| `/owner` | Team owner: Next tie, Lineup, Squad, Fixtures | Registered mobile (WhatsApp code) or email + password |
+| `/console` | Flexon Console: tournaments in any of 22 formats, draws, live control, teams, players, users and logins | Organisers and admins (email + password) |
+| `/t/<code>` | Public tournament centre: brackets, pools, rounds, team ties, standings, live | None |
+| `/scoreboard/<match>` | Full-screen live scoreboard for court TVs and streams | None |
 
 ## Stack
 
@@ -73,4 +76,4 @@ npm run dev                  # http://localhost:3000, /admin, /owner
 npm test                     # scoring + draw unit tests
 ```
 
-Admin logins and first-time setup: [docs/ADMIN_SETUP.md](docs/ADMIN_SETUP.md). Deployment: see [DEPLOYMENT.md](DEPLOYMENT.md). Branches: `main` → Vercel production, `dev` → Vercel preview.
+Formats: [docs/FORMATS.md](docs/FORMATS.md). Admin logins and first-time setup: [docs/ADMIN_SETUP.md](docs/ADMIN_SETUP.md). Deployment: see [DEPLOYMENT.md](DEPLOYMENT.md). Branches: `main` → Vercel production, `dev` → Vercel preview.

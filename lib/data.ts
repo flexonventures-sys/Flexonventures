@@ -18,9 +18,13 @@ export type MatchRow = {
   entry_a: string | null; entry_b: string | null;
   scoring: "sideout" | "rally"; points_to: number; best_of: number; doubles: boolean; status: string;
   games: [number, number][]; winner: 0 | 1 | null; referee_name: string | null;
+  win_by?: number | null; cap?: number | null; freeze_at?: number | null; stage_id?: string | null;
 };
 
-export const formatOf = (m: MatchRow): Format => ({ type: m.scoring, to: m.points_to, bo: m.best_of, dbl: m.doubles });
+export const formatOf = (m: MatchRow): Format => ({
+  type: m.scoring, to: m.points_to, bo: m.best_of, dbl: m.doubles,
+  winBy: m.win_by ?? 2, cap: m.cap ?? undefined, freeze: m.freeze_at ?? undefined,
+});
 
 export async function matchByCode(code: string): Promise<MatchRow> {
   const { data } = await db().from("matches").select("*").eq("code", code).maybeSingle();

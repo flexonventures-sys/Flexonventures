@@ -96,7 +96,14 @@ Dashboard → API keys → set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`. Webhook
 `https://<your-domain>/api/payments/webhook`, events `payment.captured`, `payment.failed`, `order.paid`,
 `refund.processed`, secret → `RAZORPAY_WEBHOOK_SECRET`.
 
-### 7. Run a tournament (Organiser view)
+### 7. Run a tournament (Console)
+Log in at **`/console`**. From there you can:
+- create tournaments in any of 22 formats (see `docs/FORMATS.md`), with options and scoring per category
+- add entries, teams, owners and squads, make draws, run rounds, enter and correct scores
+- **Users & logins**: create, edit, reset passwords, change roles, disable or delete any login (organisers and admins only by an admin)
+- **Players**: the player directory and ratings
+
+### 7b. Matchday app (Organiser view)
 1. **Tournaments → New**: type, details, categories and fees, format, registration form, review and publish.
 2. **Tournaments → open it**: step through *Entries open → Close entries → Make the draw → Publish the schedule*.
 3. **Entries**: approve or reject, one-tap refunds, desk sign-ups.

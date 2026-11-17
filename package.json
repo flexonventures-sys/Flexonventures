@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "node --test --experimental-strip-types lib/*.test.ts",
+    "test": "node --test --experimental-strip-types lib/*.test.ts lib/formats/*.test.ts",
     "db:seed": "node scripts/gen-seed.mjs"
   },
   "dependencies": {
