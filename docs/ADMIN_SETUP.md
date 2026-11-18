@@ -1,5 +1,21 @@
 # Admin setup guide
 
+## Hidden admin entrance
+
+The organiser surfaces have no public link. Set `ADMIN_SECRET_PATH` (Vercel env var, and `.env.local` locally) to a long
+random value such as `ops-<32 hex chars>`; generate one with `node -e "console.log('ops-'+require('crypto').randomBytes(16).toString('hex'))"`.
+
+| URL | Opens |
+| --- | --- |
+| `https://<domain>/<ADMIN_SECRET_PATH>` | Flexon Console (organiser / admin login) |
+| `https://<domain>/<ADMIN_SECRET_PATH>/matchday` | Matchday app: organiser login, courts, scoring, referee court-PIN login |
+
+Visiting either sets a 12-hour access cookie. Without it, `/console`, `/admin` and `/organiser/*` return 404, and the public
+site no longer links to them. Share the URL only with organisers and referees. To rotate it, change the env var and redeploy;
+every old link and cookie stops working. The link only hides the door: every action still needs a Supabase login and role.
+Do not commit the value. If `ADMIN_SECRET_PATH` is unset the routes are open (local development only).
+
+
 Every login in Flexon Sports Hub is a Supabase Auth session. Roles live in `profiles.role`
 (`player`, `team_owner`, `referee`, `organiser`, `admin`).
 
@@ -70,7 +86,7 @@ on conflict (id) do update set role = 'organiser', org_id = excluded.org_id;
 ```
 
 ### 3. Log in
-Open `/admin` → choose **Organiser** → enter the email → **Send login code** → enter the 6 digits.
+Open the hidden matchday URL (`/<ADMIN_SECRET_PATH>/matchday`) → choose **Organiser** → enter the email → **Send login code** → enter the 6 digits.
 Only emails registered as organiser or admin get a code; everyone else sees the same "sent" message, so
 the page never reveals who is an organiser.
 
@@ -97,7 +113,7 @@ Dashboard → API keys → set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`. Webhook
 `refund.processed`, secret → `RAZORPAY_WEBHOOK_SECRET`.
 
 ### 7. Run a tournament (Console)
-Log in at **`/console`**. From there you can:
+Open the hidden console URL (`/<ADMIN_SECRET_PATH>`) and log in. From there you can:
 - create tournaments in any of 22 formats (see `docs/FORMATS.md`), with options and scoring per category
 - add entries, teams, owners and squads, make draws, run rounds, enter and correct scores
 - **Users & logins**: create, edit, reset passwords, change roles, disable or delete any login (organisers and admins only by an admin)

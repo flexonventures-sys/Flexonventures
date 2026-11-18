@@ -1,9 +1,10 @@
 /* Flexon service worker: installable app shell, offline fallback for the app pages,
    and browser notifications for followed matches (proposal sections 2, 13). */
-const CACHE = "flexon-v1";
-const SHELL = ["/", "/admin", "/owner", "/hub/styles.css", "/hub/app.js", "/organiser/styles.css", "/organiser/app.js", "/shared/flx.js", "/icon.svg", "/manifest.webmanifest"];
+const CACHE = "flexon-v2";
+const SHELL = ["/", "/owner", "/hub/styles.css", "/hub/app.js", "/shared/flx.js", "/icon.svg", "/manifest.webmanifest"];
 
-self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
+self.addEventListener("install", (e) => { // addAll is all-or-nothing; cache each entry on its own so one miss never blocks install
+  e.waitUntil(caches.open(CACHE).then((c) => Promise.all(SHELL.map((u) => c.add(u).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });

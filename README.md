@@ -5,9 +5,9 @@ Pickleball tournament platform for Flexon Ventures: one mobile-first web app, th
 | URL | View | Login |
 | --- | --- | --- |
 | `/` | Public: Home, Matches, Events, Players, Log in | None to browse. Players: mobile (WhatsApp/SMS) or email code |
-| `/admin` | Organiser (Today, Tournaments, Entries, Setup) and Referee scoring | Organisers: work email code. Referees: court + 4-digit PIN |
+| `/<ADMIN_SECRET_PATH>/matchday` (hidden; see docs/ADMIN_SETUP.md) | Organiser (Today, Tournaments, Entries, Setup) and Referee scoring | Organisers: work email code. Referees: court + 4-digit PIN |
 | `/owner` | Team owner: Next tie, Lineup, Squad, Fixtures | Registered mobile (WhatsApp code) or email + password |
-| `/console` | Flexon Console: tournaments in any of 22 formats, draws, live control, teams, players, users and logins | Organisers and admins (email + password) |
+| `/<ADMIN_SECRET_PATH>` (hidden) | Flexon Console: tournaments in any of 22 formats, draws, live control, teams, players, users and logins | Organisers and admins (email + password) |
 | `/t/<code>` | Public tournament centre: brackets, pools, rounds, team ties, standings, live | None |
 | `/scoreboard/<match>` | Full-screen live scoreboard for court TVs and streams | None |
 

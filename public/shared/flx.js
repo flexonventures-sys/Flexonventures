@@ -41,7 +41,7 @@
     const reg = { phone: "", email: "" };
     wrap("send", async () => {
       const phone = ($("#l-p") || {}).value, email = ($("#l-e") || {}).value;
-      await api("auth/otp", { phone, email, channel: pressed("ch") === "sms" ? "sms" : "whatsapp", role: "player" });
+      await api("auth/otp", { phone, email, channel: "whatsapp", role: "player" });
       reg.phone = phone; reg.email = email;
     });
     wrap("pwlogin", async () => { await api("auth/password", { email: ($("#l-e") || {}).value, password: ($("#l-pw") || {}).value, role: "player" }); });
@@ -80,6 +80,25 @@
     wrap("followt2", (a) => api("follows", { tournament: a.dataset.id, categories: $$("input[name=fc]:checked").map((i) => i.value) }));
     wrap("unfollowt", (a) => api("follows", { tournament: a.dataset.id, remove: true }));
     wrap("logout", () => api("auth/logout", {}));
+    // Account setup: verify the mobile on WhatsApp (Supabase phone_change code delivered by the Send SMS hook)
+    const prevAfter = X.App.after;
+    X.App.after = (r) => { prevAfter && prevAfter(r); if (r && r.name === "me") verifyCard(); };
+    if (parse().name === "me") setTimeout(verifyCard, 0); // first render happened before this file loaded
+    async function verifyCard() {
+      if (!live || $("#vp-card")) return;
+      let me; try { me = await api("auth/me"); } catch { return; }
+      const host = $("#app .page"); if (!me.loggedIn || me.phoneVerified || !host) return;
+      const card = document.createElement("div"); card.id = "vp-card"; card.className = "note warn"; card.style.cssText = "display:block;margin:14px 0";
+      card.innerHTML = '<b>Verify your mobile</b><p class="muted" style="margin:4px 0 10px;font-size:13px">We send a 6-digit code on WhatsApp. Needed to enter tournaments and receive team invites.</p>' +
+        '<div id="vp-step1"><div class="phone"><span>+91</span><input id="vp-p" class="inp" inputmode="numeric" maxlength="10" placeholder="98300 00000" autocomplete="tel-national" value="' + String(me.phone || "").replace(/^\+91/, "") + '"></div>' +
+        '<button class="btn full" id="vp-send" style="margin-top:8px">Send code on WhatsApp</button></div>' +
+        '<div id="vp-step2" hidden><input id="vp-c" class="inp" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code" style="text-align:center;letter-spacing:.4em">' +
+        '<button class="btn full" id="vp-ok" style="margin-top:8px">Verify</button></div>';
+      host.insertBefore(card, host.children[2] || null);
+      let phone = "";
+      $("#vp-send").onclick = async () => { try { phone = $("#vp-p").value; await api("auth/phone", { phone }); $("#vp-step1").hidden = true; $("#vp-step2").hidden = false; toast("Code sent on WhatsApp"); } catch (e) { toast(e.message); } };
+      $("#vp-ok").onclick = async () => { try { await api("auth/phone", { phone, code: $("#vp-c").value }, "PUT"); card.remove(); toast("Mobile verified"); } catch (e) { toast(e.message); } };
+    }
     if ("Notification" in window && F.vapidKey) setTimeout(subscribePush, 4000);
   }
 

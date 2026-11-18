@@ -47,7 +47,23 @@ All accounts in Flexon's name (proposal section 14). `main` is production, `dev`
    `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`,
    `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `NEXT_PUBLIC_SITE_URL`.
 3. Pushes to `dev` create Preview deployments; merging `dev` into `main` deploys production.
-4. Add the domain; `/admin` and `/owner` live on the same domain.
+4. Add the domain. `/owner` is public; the organiser console and matchday app live behind the hidden `ADMIN_SECRET_PATH` URL (see docs/ADMIN_SETUP.md). Set `ADMIN_SECRET_PATH` in Production and Preview.
+
+## 3b. WhatsApp OTP (login and account-setup verification)
+
+Supabase Auth issues, stores, rate-limits and verifies every code. Our hook only delivers the code on WhatsApp.
+1. Meta: WhatsApp Business app with a sending number; a **system user** token with `whatsapp_business_messaging` and `whatsapp_business_management`.
+2. Put `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_BUSINESS_ACCOUNT_ID` in `.env.local`, then
+   ```bash
+   node scripts/whatsapp-setup.mjs create-template   # Authentication template "flexon_login_code" with a copy-code button
+   node scripts/whatsapp-setup.mjs status            # wait for APPROVED
+   node scripts/whatsapp-setup.mjs send-test +91XXXXXXXXXX
+   ```
+   (The WhatsApp Business Tools MCP can do the same steps interactively from Claude Code, Claude Desktop or Codex.)
+3. Supabase → Authentication → Sign In / Providers → **Phone: enable**. (Until this is on, signInWithOtp fails with "Unable to get SMS provider".)
+4. Supabase → Authentication → **Hooks** → **Send SMS** → HTTPS → `https://<domain>/api/hooks/send-sms`; copy the generated secret into `SEND_SMS_HOOK_SECRET`.
+5. Set the same variables on Vercel and redeploy. Test: Log in → Player → Mobile, or the "Verify your mobile" card on the Log in tab.
+`scripts/test-whatsapp-hook.mjs` tests the hook against a local mock of the WhatsApp API (signature, payload, failure handling).
 
 ## 4. Matchday checklist
 

@@ -3,7 +3,7 @@
 // the code Supabase hands to the Send SMS hook (app/api/hooks/send-sms).
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-const GRAPH = "https://graph.facebook.com/v21.0";
+const graph = () => process.env.WHATSAPP_API_BASE || "https://graph.facebook.com/v21.0";
 
 export function whatsappConfigured() {
   return Boolean(process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID);
@@ -16,7 +16,7 @@ export function whatsappConfigured() {
  */
 export async function sendWhatsAppOtp(phoneE164: string, otp: string) {
   const to = phoneE164.replace(/\D/g, "");
-  const r = await fetch(`${GRAPH}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+  const r = await fetch(`${graph()}/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
     method: "POST",
     headers: { authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`, "content-type": "application/json" },
     body: JSON.stringify({
