@@ -63,6 +63,11 @@ Supabase Auth issues, stores, rate-limits and verifies every code. Our hook only
 3. Supabase → Authentication → Sign In / Providers → **Phone: enable**. (Until this is on, signInWithOtp fails with "Unable to get SMS provider".)
 4. Supabase → Authentication → **Hooks** → **Send SMS** → HTTPS → `https://<domain>/api/hooks/send-sms`; copy the generated secret into `SEND_SMS_HOOK_SECRET`.
 5. Set the same variables on Vercel and redeploy. Test: Log in → Player → Mobile, or the "Verify your mobile" card on the Log in tab.
+6. Optional, for delivery visibility: Meta App Dashboard -> WhatsApp -> Configuration -> Webhooks.
+   Callback URL `https://<domain>/api/webhooks/whatsapp`; Verify token = your `WHATSAPP_VERIFY_TOKEN` (a random string you invent,
+   never an access token); subscribe to **messages**. Set `WHATSAPP_APP_SECRET` (App -> Settings -> Basic). Delivery statuses are
+   stored in `audit_log` as `whatsapp.delivered` / `whatsapp.failed`. OTP sending works without it.
+   The Callback URL must be public HTTPS, so it works only after deployment (not on localhost).
 `scripts/test-whatsapp-hook.mjs` tests the hook against a local mock of the WhatsApp API (signature, payload, failure handling).
 
 ## 4. Matchday checklist
